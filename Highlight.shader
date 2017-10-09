@@ -1,10 +1,9 @@
-﻿Shader "Custom/Highlight" {
+Shader "Custom/Highlight" {
 	Properties {
 		[HideInInspector]
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_Color ("Color", Color) = (1,1,1,1)
 		_HighlightColor("HighLight Color",Color) = (0,0,0,0)
-		_SearchColor("Search Color",Color) = (0,0,0,0)
 		_Center("Center",Vector) = (0.5,0.5,0,0)
 		_Size("Size",Range(0,1)) = 0
 		_Radius("Radius",Range(0,1)) = 0
@@ -51,7 +50,6 @@
 		sampler2D _MainTex_ST;
 		fixed4 _Color;
 		fixed4 _HighlightColor;
-		fixed4 _SearchColor;
 		fixed _Highlight;
 		fixed _Radius;
 		fixed _Size;
@@ -82,10 +80,8 @@
 			if(radius && _Opaque)
 				return (1,1,1,1);
 			
-			if(o.a >0 && o.a < _Size && radius  && _Highlight)
+			if(o.a >0 && o.a < _Size && radius   && _Highlight)
 			{
-//					fixed4 result = (_HighlightColor * o);
-//					if(result.a > 0 && result.a > 1)
 					return _HighlightColor;
 			}
 			return o;
