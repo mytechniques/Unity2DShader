@@ -4,15 +4,8 @@ Shader "Custom/Highlight" {
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_HighlightColor("HighLight Color",Color) = (0,0,0,0)
 		_OpaqueColor("Opaque Color",Color) = (0,0,0,0)
-//		_Center("Center",Vector) = (0.5,0.5,0,0)
-		_Opacity("Opacity",Range(0,1)) = 0
-//		_Radius("Radius",Range(0,1)) = 0
-			
+		_Highlight("Highlight ",Range(0,1)) = 1
 
-		[MaterialToggle]
-		_Highlight("Highlight",Range(0,1)) = 1
-
-		[MaterialToggle]
 		_Opaque("Opaque",Range(0,1)) = 1
 
 	}
@@ -49,14 +42,12 @@ Shader "Custom/Highlight" {
 		sampler2D _MainTex;
 		fixed4 _HighlightColor, _OpaqueColor;
 
-
 		fixed _Highlight;
-		fixed _Opacity;
 		fixed _Opaque;
-		struct appdata{
+		struct appdata_t{
 			half4 vertex: POSITION;
 			half2 texcoord : TEXCOORD0;
-			half4 color : COLOR;
+			fixed4 color : COLOR;
 		};
 		struct v2f {
 			half4 vertex: POSITION;
@@ -64,7 +55,7 @@ Shader "Custom/Highlight" {
 			fixed4 color : COLOR;
 
 		};
-		v2f vert(appdata IN){
+		v2f vert(appdata_t IN){
 			v2f OUT;
 			OUT.vertex = UnityObjectToClipPos(IN.vertex);
 			OUT.texcoord = IN.texcoord;
@@ -73,20 +64,15 @@ Shader "Custom/Highlight" {
 		}
 
 		fixed4 frag(v2f IN):COLOR{
-			fixed4 o =  tex2D(_MainTex,IN.texcoord);
-//			bool radius = (pow(IN.texcoord.x - _Center.x,2) + pow(IN.texcoord.y - _Center.y,2)) > pow(_Radius,2)/2;
-			
-//			 (1,1,1,1);
-			if(_Highlight){
-				if(o.a >0 && o.a < _Opacity  )
-				{
+			fixed4 o =  tex2D(_MainTex,IN.texcoord) * IN.color;
+			bool alpha = o.a > 0 && o.a < _Highlight;
+				if(alpha)
 					return _HighlightColor;
-				}
 
-			if(_Opaque && o.a > 0)
-				return _OpaqueColor;
-			}
-			return o * IN.color;
+				if(o.a > 0)
+				return lerp(o,_OpaqueColor,_Opaque);
+
+			return o;
 		}
 
 
